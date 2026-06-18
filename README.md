@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🍃 Leaf-Net (EcoConvNet)</h1>
+  <h1>EcoConvNet (Leaf-Net)</h1>
   <p><strong>Beyond Self-Attention: Designing Lightweight Transformer-Like Models with 1D-Convolutions for Green AI</strong></p>
 
   <p>
@@ -13,42 +13,71 @@
 
 <hr />
 
-## 📖 Overview
+## Overview
 
-**Leaf-Net (EcoConvNet)** is a novel, extremely lightweight, and state-of-the-art Transformer-like architecture. It fundamentally reimagines sequence modeling for energy-efficient computer vision—commonly referred to as **Green AI**. 
+The increasing computational demands of modern deep learning models, particularly Transformers, present a significant challenge to the goal of sustainable, or "Green," AI. While hybrid architectures have advanced computer vision, their core self-attention mechanisms remain a major source of parameter and computational inefficiency. 
 
-By completely replacing the computationally prohibitive quadratic Multi-Head Self-Attention (MHSA) module with a highly efficient sequence processor utilizing temporal 1D-Convolutions, Leaf-Net retains the modeling power of Transformers but with significantly reduced computational overhead and environmental footprint. Furthermore, it incorporates a revolutionary **Positional-Biased Attention Pooling** mechanism to encapsulate and govern global spatial information efficiently.
+This repository provides the official implementation of **EcoConvNet** (distributed as `leaf-net`), a novel and lightweight Transformer-like architecture meticulously designed for energy-efficient computer vision. The central innovation of our model is the replacement of the canonical Multi-Head Self-Attention block with a highly efficient sequence processor built on temporal 1D-Convolutions. This design choice drastically reduces the model's complexity from quadratic to linear with respect to sequence length, leading to substantial gains in efficiency. 
 
-This repository hosts the official PyTorch implementation, constructed to be highly modular, exceptionally easy to use, and immediately adaptable to any custom dataset or domain.
+We further enhance the architecture with a unique Positional-Biased Attention Pooling mechanism, a parameter-efficient module that integrates content-based feature importance with a learnable spatial bias. Through rigorous empirical evaluation, we demonstrate that EcoConvNet achieves a superior accuracy-per-FLOP trade-off compared to conventional baselines, providing a concrete design paradigm for developing next-generation Green AI models suitable for resource-constrained environments.
 
-## ✨ Key Features
+## Architecture
 
-- **Eco-Friendly & Lightweight**: Designed from the ground up for Green AI, dramatically reducing parameter counts and FLOPS compared to standard Vision Transformers (ViTs).
-- **1D-Convolutional Sequence Processor**: Substitutes expensive MHSA blocks with agile 1D-Conv operations, achieving comparable or superior representations.
-- **Positional-Biased Attention Pooling**: A novel pooling technique designed to distill global spatial configurations accurately without heavy computational burden.
-- **Plug-and-Play**: Seamless integration into existing PyTorch pipelines and workflows.
-- **Hugging Face Hub Integration**: Out-of-the-box support for loading, saving, and sharing weights via `huggingface_hub`.
+Our approach creates a synergistic balance between efficient local feature extraction and expressive global-like context aggregation. 
 
-## 📦 Installation
+<div align="center">
+  <img src="leaf_net/architecture.png" alt="Overall Architectural Blueprint of EcoConvNet" width="800"/>
+  <p><em>Figure 1: The overall architectural blueprint of EcoConvNet. An input image is processed by a CNN backbone, patchified, and passed through our linear-time 1D-Convolutional Sequence Processor. The resulting sequence is aggregated by the Positional-Biased Attention Pooling layer before final classification.</em></p>
+</div>
 
-Leaf-Net requires Python `3.8+` and PyTorch `1.9+`. You can easily install the package from PyPI:
+### Core Methodological Components:
+
+1. **CNN Feature Extraction**: An input image first passes through a lightweight CNN backbone, which functions as a parsimonious hierarchical feature extractor.
+2. **Patchification and Embedding**: The resulting feature map is partitioned into a uniform grid of non-overlapping patches. Learnable positional encodings are added to the sequence.
+3. **1D-Convolutional Sequence Processing**: We replace quadratic-cost Multi-Head Self-Attention with a stack of temporal 1D-convolutional layers, modeling local relationships between adjacent patch embeddings with linear-time complexity $O(N \cdot D_{embed}^2 \cdot K)$.
+4. **Positional-Biased Attention Pooling**: The processed sequence is intelligently aggregated into a single feature vector using a lightweight pooling mechanism that weighs patches based on both their dynamic content and static spatial position.
+
+<div align="center">
+  <img src="leaf_net/fig1.png" alt="Systematic Workflow" width="400"/>
+  <p><em>Figure 2: Systematic workflow illustrating the transition from raw data to linearized sequence processing.</em></p>
+</div>
+
+## Performance and Sustainability Analysis
+
+EcoConvNet occupies the Pareto Frontier for resource-constrained vision. It provides an exceptionally balanced profile, avoiding the extreme computational costs of deep residual networks and the architectural bloat of standard efficient models.
+
+<div align="center">
+  <img src="leaf_net/fig3.png" alt="Model Performance Comparison on CIFAR-10" width="800"/>
+  <p><em>Figure 3: Model Performance Comparison on CIFAR-10.</em></p>
+</div>
+
+Our sustainability analysis highlights that EcoConvNet's energy consumption is nearly 64 times lower than that of ResNet-18, and its parameter count is 84 times smaller than EfficientNet-B0 (0.048M vs. 4.020M parameters). In a real-world edge deployment scenario, this translates to a massive extension of battery life and a significant reduction in the operational carbon footprint.
+
+<div align="center">
+  <img src="leaf_net/fig4.png" alt="Green AI and Efficiency Metrics Comparison" width="800"/>
+  <p><em>Figure 4: Green AI and Efficiency Metrics Comparison. Lower values represent better sustainability.</em></p>
+</div>
+
+## Installation
+
+EcoConvNet requires Python `3.8+` and PyTorch `1.9+`. You can install the package directly from PyPI:
 
 ```bash
 pip install leaf-net
 ```
 
-*For developers, you can clone the repository and install it in editable mode:*
+For development and local testing:
 ```bash
 git clone https://github.com/kingknight07/Leaf-net.git
 cd Leaf-net
 pip install -e .
 ```
 
-## 🚀 Quick Start
+## Usage
 
-### 1. Initialize the Model
+### 1. Model Initialization
 
-You can dynamically instantiate Leaf-Net (EcoConvNet) for any image resolution, patch size, and number of classes.
+You can dynamically instantiate EcoConvNet for any image resolution, patch size, and number of classes.
 
 ```python
 import torch
@@ -62,7 +91,6 @@ model = EcoConvNet(
     num_classes=5
 )
 
-# Inference with dummy data
 dummy_input = torch.randn(1, 3, 128, 128)
 output = model(dummy_input)
 
@@ -70,9 +98,9 @@ print(f"Output shape: {output.shape}")
 # Expected Output: torch.Size([1, 5])
 ```
 
-### 2. Training on Custom Datasets
+### 2. Custom Training
 
-Leaf-Net seamlessly integrates with standard PyTorch training loops. Below is a rapid setup guide for training:
+EcoConvNet integrates effortlessly into standard PyTorch training pipelines:
 
 ```python
 import torch
@@ -80,66 +108,39 @@ import torch.nn as nn
 import torch.optim as optim
 from leaf_net import EcoConvNet, train_model
 
-# 1. Prepare Data Loaders (e.g., using torchvision.datasets)
-# train_loader = ... 
-
-# 2. Setup Device, Model, Optimizer, and Loss Criterion
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = EcoConvNet(img_size=(224, 224), num_classes=10).to(device)
+model = EcoConvNet(img_size=(32, 32), num_classes=10).to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 criterion = nn.CrossEntropyLoss()
 
-# 3. Launch Training
+# Assuming `train_loader` is defined
 # history = train_model(model, device, train_loader, optimizer, criterion, epochs=10)
 ```
 
-### 3. Pre-Trained Models & Hugging Face Hub
+## Authors & Contributors
 
-Leaf-Net is tightly integrated with the Hugging Face ecosystem. While robust domain-specific models (e.g., medical imaging, satellite data) are actively training, you will soon be able to load state-of-the-art checkpoints seamlessly:
+This research and implementation are the result of collaborative efforts by:
 
-```python
-from leaf_net import EcoConvNet
-
-# (Coming Soon) Load a model pre-trained on ImageNet or CIFAR
-# model = EcoConvNet.from_pretrained("kingknight07/leaf-net-imagenet")
-```
-
-Push your fine-tuned green models to the Hub to accelerate community research:
-```python
-# Save and push to your Hugging Face account
-# model.push_to_hub("your-username/leaf-net-custom")
-```
-
-## 👥 Authors & Contributors
-
-This project is authored and maintained by:
-
-- **[Ayush Shukla](https://github.com/kingknight07)** (@kingknight07)
+- **Ayush Shukla** (@kingknight07)
+- **Ashutosh Kumar Singh**
 - **Vijay Dwivedi**
 - **Sulabh Sachan**
 - **Iwona Grobelna**
 - **Praveen Pratap Singh**
 
-We welcome contributions! Please feel free to open an issue or submit a pull request if you want to help improve Leaf-Net.
+## Citation
 
-## 📄 Citation
-
-If you use Leaf-Net (EcoConvNet) in your research, we would greatly appreciate it if you cite our book chapter:
+If this architecture and methodology assist in your research on sustainable deep learning, please consider citing our work:
 
 ```bibtex
-@incollection{shukla2025ecoconvnet,
-  title={Beyond Self-Attention: Designing Lightweight Transformer-Like Models with 1D-Convolutions for Green AI},
-  author={Shukla, Ayush and Dwivedi, Vijay and Sachan, Sulabh and Grobelna, Iwona and Singh, Praveen Pratap},
-  year={2025},
-  note={Book Chapter Proposal}
+@incollection{shukla2026ecoconvnet,
+  title={EcoConvNet: A Novel Lightweight Transformer like Architecture with 1D-Convolutions for Green AI Computer Vision},
+  author={Shukla, Ayush and Singh, Ashutosh Kumar and Dwivedi, Vijay and Sachan, Sulabh and Grobelna, Iwona and Singh, Praveen Pratap},
+  year={2026},
+  note={Book Chapter}
 }
 ```
 
-## ⚖️ License
+## License
 
-This project is open-sourced and released under the [Apache License 2.0](LICENSE). See the `LICENSE` file for more details.
-
----
-<div align="center">
-  <p>Built with ❤️ for Green AI.</p>
-</div>
+This project is released under the [Apache License 2.0](LICENSE). See the `LICENSE` file for more details.
